@@ -68,11 +68,13 @@ dependencies:
 ```
 ### Conda
 1. Clone the repository:
-```git clone 
+```
+    git clone https://github.com/anarmsilva10/PAC_PCOS.git
    cd PAC_PCOS
 ```
 2. Create Conda environment:
-```conda env create -f environment.yml
+```
+    conda env create -f environment.yml
    conda activate pac_pcos
 ```
 3. Run the application:
