@@ -1,165 +1,111 @@
-import tkinter as tk
-from tkinter import Toplevel
+import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Ensure matplotlib and seaborn are configured for Tkinter
-plt.rcParams.update({'figure.autolayout': True})
+sns.set_theme(style="whitegrid")
 
 def show_graphs_window(data):
-    tip = Toplevel()
-    tip.title("Charts")
-    tip.iconbitmap('images/image.ico')
-    tip.geometry("430x500")
+    st.subheader("📊 Analysis Charts")
 
     colors = {0: 'lightcoral', 1: 'maroon'}
     pcos = data[data['PCOS (Y/N)'] == 1]
 
-    # --- GRAPH FUNCTIONS ---
+    # Available Graph
+    graph_option = st.selectbox(
+        "Select the chart you want to visualize:",
+        [
+            "Age distribution in PCOS",
+            "Vitamin D among patients and non-patients",
+            "FSH/LH ratio among patients and non-patients",
+            "No. of abortions among patients and non-patients",
+            "Menstruation Cycle among patients and non-patients",
+            "Correlation between AMH and LH in patients",
+            "Correlation between BMI and RBS among patients and non-patients",
+            "Number of follicles among patients and non-patients",
+            "Endometrial thickening among patients and non-patients"
+        ]
+    )
 
-    def g_age():
+    # Graph figure for each case
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    if graph_option == "Age distribution in PCOS":
         sns.histplot(data=pcos, x=" Age (yrs)", hue="PCOS (Y/N)",
                      element='step', multiple="dodge", palette=colors,
-                     edgecolor='black', legend=False)
-        plt.title('Age Distribution in PCOS', fontsize=14, fontweight='bold')
-        plt.xlabel('Age')
-        plt.ylabel('Frequency')
-        plt.show()
+                     edgecolor='black', legend=False, ax=ax)
+        ax.set_title('Age Distribution in PCOS', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Age')
+        ax.set_ylabel('Frequency')
 
-    def vitD():
-        data.boxplot(column='Vit D3 (ng/mL)', by='PCOS (Y/N)', figsize=(10,5),
-                      whis=[5,95], return_type='axes', showfliers=False, patch_artist=True,
-                      boxprops=dict(facecolor="mistyrose"),
-                      medianprops=dict(color="salmon", linewidth=1),
-                      whiskerprops=dict(color="black", linewidth=1.5))
-        plt.suptitle('')
-        plt.title('Vitamin D among patients and non-patients', fontsize=14, fontweight='bold')
-        plt.ylabel('Vit D3 (ng/mL)')
-        plt.xlabel('PCOS')
-        plt.xticks([1,2], ['Without', 'With'])
-        plt.show()
+    elif graph_option == "Vitamin D among patients and non-patients":
+        data.boxplot(column='Vit D3 (ng/mL)', by='PCOS (Y/N)', whis=[5,95],
+                     showfliers=False, patch_artist=True, boxprops=dict(facecolor="mistyrose"),
+                     medianprops=dict(color="salmon"), whiskerprops=dict(color="black"), ax=ax)
+        ax.set_title('Vitamin D among patients and non-patients', fontsize=14, fontweight='bold')
+        ax.set_ylabel('Vit D3 (ng/mL)')
+        ax.set_xlabel('PCOS')
+        ax.set_xticklabels(['Without', 'With'])
 
-    def FSHLH():
-        data.boxplot(column='FSH/LH', by='PCOS (Y/N)', figsize=(10,5),
-                      whis=[5,95], return_type='axes', showfliers=False, patch_artist=True,
-                      boxprops=dict(facecolor="mistyrose"),
-                      medianprops=dict(color="salmon", linewidth=1),
-                      whiskerprops=dict(color="black", linewidth=1.5))
-        plt.suptitle('')
-        plt.title('FSH/LH ratio among patients and non-patients', fontsize=14, fontweight='bold')
-        plt.ylabel('FSH/LH')
-        plt.xlabel('PCOS')
-        plt.xticks([1,2], ['Without', 'With'])
-        plt.show()
+    elif graph_option == "FSH/LH ratio among patients and non-patients":
+        data.boxplot(column='FSH/LH', by='PCOS (Y/N)', whis=[5,95],
+                     showfliers=False, patch_artist=True, boxprops=dict(facecolor="mistyrose"),
+                     medianprops=dict(color="salmon"), whiskerprops=dict(color="black"), ax=ax)
+        ax.set_title('FSH/LH ratio among patients and non-patients', fontsize=14, fontweight='bold')
+        ax.set_ylabel('FSH/LH')
+        ax.set_xlabel('PCOS')
+        ax.set_xticklabels(['Without', 'With'])
 
-    def abortions():
+    elif graph_option == "No. of abortions among patients and non-patients":
         sns.histplot(data=data, x="No. of abortions", hue="PCOS (Y/N)",
-                     element='step', multiple="dodge", palette=colors, legend=False)
-        plt.title('No. of abortions among patients and non-patients', fontsize=14, fontweight='bold')
-        plt.legend(title='PCOS', labels=['Without', 'With'],
-                   loc='upper right', fontsize=10, ncol=1)
-        plt.ylabel('Frequency')
-        plt.xlabel('No. of abortions')
-        plt.show()
+                     element='step', multiple="dodge", palette=colors, ax=ax)
+        ax.set_title('No. of abortions among patients and non-patients', fontsize=14, fontweight='bold')
+        ax.set_xlabel('No. of abortions')
+        ax.set_ylabel('Frequency')
 
-    def cycle():
+    elif graph_option == "Menstruation Cycle among patients and non-patients":
         sns.histplot(data=data, x="Cycle length(days)", hue="PCOS (Y/N)",
-                     element='step', multiple="dodge", palette=colors, legend=False)
-        plt.title('Menstruation Cycle among patients and non-patients', fontsize=14, fontweight='bold')
-        plt.legend(title='PCOS', labels=['Without', 'With'],
-                   loc='upper right', fontsize=10, ncol=1)
-        plt.ylabel('Frequency')
-        plt.xlabel('Menstruation Cycle (days)')
-        plt.show()
+                     element='step', multiple="dodge", palette=colors, ax=ax)
+        ax.set_title('Menstruation Cycle among patients and non-patients', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Menstruation Cycle (days)')
+        ax.set_ylabel('Frequency')
 
-    def AMHLH():
-        sns.relplot(data=pcos, x="AMH(ng/mL)", y="LH(mIU/mL)",
-                    color="maroon", legend=False)
-        plt.title('Correlation between AMH and LH in patients', fontsize=14, fontweight='bold')
-        plt.ylabel('LH(mIU/mL)')
-        plt.xlabel('AMH(ng/mL)')
-        plt.ylim(-1, 14)
-        plt.xlim(-1, 40)
-        plt.xticks(range(0, 40, 5))
-        plt.gcf().set_size_inches(8, 6)
-        plt.tight_layout()
-        plt.show()
+    elif graph_option == "Correlation between AMH and LH in patients":
+        sns.scatterplot(data=pcos, x="AMH(ng/mL)", y="LH(mIU/mL)", color="maroon", ax=ax)
+        ax.set_title('Correlation between AMH and LH in patients', fontsize=14, fontweight='bold')
+        ax.set_xlabel('AMH(ng/mL)')
+        ax.set_ylabel('LH(mIU/mL)')
+        ax.set_xlim(-1, 40)
+        ax.set_ylim(-1, 14)
 
-    def bmi():
-        sns.lmplot(data=data, x="RBS(mg/dl)", y="BMI", hue="PCOS (Y/N)",
-                   palette=colors, legend=False)
+    elif graph_option == "Correlation between BMI and RBS among patients and non-patients":
+        sns.lmplot(data=data, x="RBS(mg/dl)", y="BMI", hue="PCOS (Y/N)", palette=colors, height=6, aspect=1.2)
         plt.title('Correlation between BMI and RBS among patients and non-patients', fontsize=14, fontweight='bold')
-        plt.ylabel('BMI')
         plt.xlabel('RBS (mg/dl)')
-        plt.ylim(0, 60)
+        plt.ylabel('BMI')
         plt.xlim(0, 250)
-        plt.gcf().set_size_inches(8, 6)
-        plt.tight_layout()
+        plt.ylim(0, 60)
+        st.pyplot(plt.gcf())
+        st.stop()  # Evita renderização dupla
 
-        legend_labels = ['Without', 'With']
-        handles = [
-            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=colors[0], markersize=8),
-            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=colors[1], markersize=8)
-        ]
-        plt.legend(handles=handles, labels=legend_labels, title="PCOS",
-                   loc='upper right', fontsize=10, ncol=1)
-        plt.show()
-
-    def follicle():
+    elif graph_option == "Number of follicles among patients and non-patients":
         sns.lmplot(data=data, x='Follicle No. (R)', y='Follicle No. (L)',
-                   hue="PCOS (Y/N)", palette=colors, legend=False)
+                   hue="PCOS (Y/N)", palette=colors, height=6, aspect=1.2)
         plt.title('Number of follicles among patients and non-patients', fontsize=14, fontweight='bold')
-        plt.ylabel('Follicle No. (L)')
         plt.xlabel('Follicle No. (R)')
-        plt.ylim(-2, 30)
+        plt.ylabel('Follicle No. (L)')
         plt.xlim(-2, 25)
-        plt.gcf().set_size_inches(10, 10)
-        plt.tight_layout()
-        legend_labels = ['Without', 'With']
-        handles = [
-            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=colors[0], markersize=8),
-            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=colors[1], markersize=8)
-        ]
-        plt.legend(handles=handles, labels=legend_labels, title="PCOS",
-                   loc='upper right', fontsize=10, ncol=1)
-        plt.show()
+        plt.ylim(-2, 30)
+        st.pyplot(plt.gcf())
+        st.stop()
 
-    def endometrium():
-        data.boxplot(column='Endometrium (mm)', by='PCOS (Y/N)', figsize=(10,5),
-                      whis=[5,95], return_type='axes', showfliers=False, patch_artist=True,
-                      boxprops=dict(facecolor="mistyrose"),
-                      medianprops=dict(color="salmon", linewidth=1),
-                      whiskerprops=dict(color="black", linewidth=1.5))
-        plt.suptitle('')
-        plt.title('Endometrial thickening among patients and non-patients', fontsize=14, fontweight='bold')
-        plt.ylabel('Endometrium (mm)')
-        plt.xlabel('PCOS')
-        plt.xticks([1,2], ['Without', 'With'])
-        plt.show()
+    elif graph_option == "Endometrial thickening among patients and non-patients":
+        data.boxplot(column='Endometrium (mm)', by='PCOS (Y/N)', whis=[5,95],
+                     showfliers=False, patch_artist=True, boxprops=dict(facecolor="mistyrose"),
+                     medianprops=dict(color="salmon"), whiskerprops=dict(color="black"), ax=ax)
+        ax.set_title('Endometrial thickening among patients and non-patients', fontsize=14, fontweight='bold')
+        ax.set_ylabel('Endometrium (mm)')
+        ax.set_xlabel('PCOS')
+        ax.set_xticklabels(['Without', 'With'])
 
-    # -------------------------------------------------------
-    # Buttons
-    # -------------------------------------------------------
-    for col in range(5):
-        tip.grid_columnconfigure(col, weight=1)
-
-    buttons = [
-        ("Age distribution in PCOS", g_age),
-        ("Vitamin D among patients and non-patients", vitD),
-        ("FSH/LH ratio among patients and non-patients", FSHLH),
-        ("No. of abortions among patients and non-patients", abortions),
-        ("Menstruation Cycle among patients and non-patients", cycle),
-        ("Correlation between AMH and LH in patients", AMHLH),
-        ("Correlation between BMI and RBS among patients and non-patients", bmi),
-        ("Number of follicles among patients and non-patients", follicle),
-        ("Endometrial thickening among patients and non-patients", endometrium)
-    ]
-
-    for i, (text, command) in enumerate(buttons, start=1):
-        tk.Button(tip, text=text, command=command, bg="#FFD6BA", fg="black", font=('Garamond', 12), relief="raised",
-                  bd=3, activebackground="#F3A26D", activeforeground="black", padx=20, pady=8
-                  ).grid(row=i, column=0, columnspan=5, pady=5)
-
-    tk.Button(tip, text="Back to Menu", command=tip.destroy, bg="#FCD8CD", fg="black", font=('Times New Roman', 11),
-              relief="raised", bd=3, activebackground="#F3A26D", activeforeground="black" ,padx=20, pady=8
-              ).grid(row=len(buttons)+1, column=0, columnspan=5, pady=10)
+    # Exibir gráfico
+    st.pyplot(fig)

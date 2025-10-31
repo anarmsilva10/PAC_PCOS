@@ -1,40 +1,32 @@
-import tkinter as tk
-from tkinter import Toplevel, Label
-import io
-from PIL import Image, ImageTk
+import streamlit as st
 import plotly.graph_objects as go
 
-
 def show_parameters_window(data):
-    pit = Toplevel()
-    pit.title("Exploratory statistical analysis")
-    pit.iconbitmap('images/image.ico')
-    pit.geometry("400x400")
-    pit.configure(bg="mistyrose")
+    st.subheader("📈 Exploratory Statistical Analysis")
 
+    # Datasets
     pcos = data[data['PCOS (Y/N)'] == 1]
     no_pcos = data[data['PCOS (Y/N)'] == 0]
 
-    # -------------------------
-    # Helper function to show tables
-    # -------------------------
-    def display_table(fig):
-        img_bytes = fig.to_image(format="png")
-        img = Image.open(io.BytesIO(img_bytes))
+    # Selection Menu
+    option = st.selectbox(
+        "Select the parameter to analyze:",
+        [
+            "Age",
+            "Menstruation Cycle",
+            "Glucose",
+            "Follicle Size",
+            "Hormones"
+        ]
+    )
 
-        image_window = tk.Toplevel(pit)
-        image_window.title("Table")
-        image_window.iconbitmap('images/image.ico')
+    def show_table(fig):
+        st.plotly_chart(fig, use_container_width=True)
 
-        img = ImageTk.PhotoImage(img)
-        panel = Label(image_window, image=img)
-        panel.image = img
-        panel.pack(expand=True, fill='both')
-
-    # -------------------------
-    # Parameter: Age
-    # -------------------------
-    def age():
+    # -------------------------------------------------------
+    # Age
+    # -------------------------------------------------------
+    if option == "Age":
         mean_with = pcos[' Age (yrs)'].mean()
         max_with = pcos[' Age (yrs)'].max()
         min_with = pcos[' Age (yrs)'].min()
@@ -44,34 +36,28 @@ def show_parameters_window(data):
         min_without = no_pcos[' Age (yrs)'].min()
 
         fig = go.Figure(data=[go.Table(
-            header=dict(
-                values=['PCOS', 'Average', 'Maximum', 'Minimum'],
-                line_color='black', fill_color='salmon',
-                align='center', font=dict(color='black', size=12)
-            ),
-            cells=dict(
-                values=[
-                    ['With', 'Without'],
-                    [f"{mean_with:.2f}", f"{mean_without:.2f}"],
-                    [max_with, max_without],
-                    [min_with, min_without]
-                ],
+            header=dict(values=['PCOS', 'Average', 'Maximum', 'Minimum'],
+                        line_color='black', fill_color='salmon',
+                        align='center', font=dict(color='black', size=12)),
+            cells=dict(values=[
+                ['With', 'Without'],
+                [f"{mean_with:.2f}", f"{mean_without:.2f}"],
+                [max_with, max_without],
+                [min_with, min_without]
+            ],
                 line_color="black", fill_color="mistyrose",
-                align='center', font=dict(color='black', size=11)
-            )
+                align='center', font=dict(color='black', size=11))
         )])
-
         fig.update_layout(
-            title="Analysis of age in relation to the presence/absence of disease",
+            title="Analysis of age in relation to PCOS presence/absence",
             title_font=dict(color="black", size=14)
         )
+        show_table(fig)
 
-        display_table(fig)
-
-    # -------------------------
-    # Parameter: Mentruation Cycle
-    # -------------------------
-    def mens():
+    # -------------------------------------------------------
+    # Menstrual Cycle
+    # -------------------------------------------------------
+    elif option == "Menstruation Cycle":
         mean_with = pcos['Cycle length(days)'].mean()
         max_with = pcos['Cycle length(days)'].max()
         min_with = pcos['Cycle length(days)'].min()
@@ -81,34 +67,28 @@ def show_parameters_window(data):
         min_without = no_pcos['Cycle length(days)'].min()
 
         fig = go.Figure(data=[go.Table(
-            header=dict(
-                values=['PCOS', 'Average', 'Maximum', 'Minimum'],
-                line_color='black', fill_color='salmon',
-                align='center', font=dict(color='black', size=12)
-            ),
-            cells=dict(
-                values=[
-                    ['With', 'Without'],
-                    [f"{mean_with:.2f}", f"{mean_without:.2f}"],
-                    [max_with, max_without],
-                    [min_with, min_without]
-                ],
+            header=dict(values=['PCOS', 'Average', 'Maximum', 'Minimum'],
+                        line_color='black', fill_color='salmon',
+                        align='center', font=dict(color='black', size=12)),
+            cells=dict(values=[
+                ['With', 'Without'],
+                [f"{mean_with:.2f}", f"{mean_without:.2f}"],
+                [max_with, max_without],
+                [min_with, min_without]
+            ],
                 line_color="black", fill_color="mistyrose",
-                align='center', font=dict(color='black', size=11)
-            )
+                align='center', font=dict(color='black', size=11))
         )])
-
         fig.update_layout(
-            title="Analysis of Menstrual Duration (in days) in relation to the presence/absence of disease",
+            title="Menstrual Cycle Length (days) vs PCOS presence/absence",
             title_font=dict(color="black", size=14)
         )
+        show_table(fig)
 
-        display_table(fig)
-
-    # -------------------------
-    # Parameter: Glucose
-    # -------------------------
-    def glu():
+    # -------------------------------------------------------
+    # Glucose
+    # -------------------------------------------------------
+    elif option == "Glucose":
         mean_with = pcos['RBS(mg/dl)'].mean()
         max_with = pcos['RBS(mg/dl)'].max()
         min_with = pcos['RBS(mg/dl)'].min()
@@ -118,38 +98,29 @@ def show_parameters_window(data):
         min_without = no_pcos['RBS(mg/dl)'].min()
 
         fig = go.Figure(data=[go.Table(
-            header=dict(
-                values=['PCOS', 'Average', 'Maximum', 'Minimum'],
-                line_color='black', fill_color='salmon',
-                align='center', font=dict(color='black', size=12)
-            ),
-            cells=dict(
-                values=[
-                    ['With', 'Without'],
-                    [f"{mean_with:.2f}", f"{mean_without:.2f}"],
-                    [max_with, max_without],
-                    [min_with, min_without]
-                ],
+            header=dict(values=['PCOS', 'Average', 'Maximum', 'Minimum'],
+                        line_color='black', fill_color='salmon',
+                        align='center', font=dict(color='black', size=12)),
+            cells=dict(values=[
+                ['With', 'Without'],
+                [f"{mean_with:.2f}", f"{mean_without:.2f}"],
+                [max_with, max_without],
+                [min_with, min_without]
+            ],
                 line_color="black", fill_color="mistyrose",
-                align='center', font=dict(color='black', size=11)
-            )
+                align='center', font=dict(color='black', size=11))
         )])
-
         fig.update_layout(
-            title="Glucose (mg/dl) analysis in relation to the presence/absence of disease",
+            title="Glucose (mg/dl) vs PCOS presence/absence",
             title_font=dict(color="black", size=14)
         )
+        show_table(fig)
 
-        display_table(fig)
-
-    # -------------------------
-    # Parameter: Folículos
-    # -------------------------
-    def fol():
-        follicle_parameters = {
-            'Follicle No. (L)': 'Left',
-            'Follicle No. (R)': 'Right'
-        }
+    # -------------------------------------------------------
+    # Follicle Size
+    # -------------------------------------------------------
+    elif option == "Follicle Size":
+        follicle_parameters = {'Follicle No. (L)': 'Left', 'Follicle No. (R)': 'Right'}
 
         ovary_sides, parameter_types, With_values, Without_values = [], [], [], []
 
@@ -168,29 +139,23 @@ def show_parameters_window(data):
             Without_values.extend([f"{mean_without:.2f}", f"{max_without:.2f}", f"{min_without:.2f}"])
 
         fig = go.Figure(data=[go.Table(
-            header=dict(
-                values=['Ovary', 'Parameter', 'PCOS:Without', 'PCOS:With'],
-                line_color='black', fill_color='salmon',
-                align='center', font=dict(color='black', size=12)
-            ),
-            cells=dict(
-                values=[ovary_sides, parameter_types, Without_values, With_values],
-                line_color="black", fill_color="mistyrose",
-                align='center', font=dict(color='black', size=11)
-            )
+            header=dict(values=['Ovary', 'Parameter', 'PCOS:Without', 'PCOS:With'],
+                        line_color='black', fill_color='salmon',
+                        align='center', font=dict(color='black', size=12)),
+            cells=dict(values=[ovary_sides, parameter_types, Without_values, With_values],
+                       line_color="black", fill_color="mistyrose",
+                       align='center', font=dict(color='black', size=11))
         )])
-
         fig.update_layout(
-            title="Analysis of the Number of Follicles in relation to the presence/absence of disease",
+            title="Number of Follicles vs PCOS presence/absence",
             title_font=dict(color="black", size=14)
         )
+        show_table(fig)
 
-        display_table(fig)
-
-    # -------------------------
-    # Parameter: Hormonas
-    # -------------------------
-    def hormona():
+    # -------------------------------------------------------
+    # Hormones
+    # -------------------------------------------------------
+    elif option == "Hormones":
         hormone_parameters = {
             'AMH(ng/mL)': 'AMH',
             'TSH (mIU/L)': 'TSH',
@@ -216,45 +181,16 @@ def show_parameters_window(data):
             Without_values.extend([f"{mean_without:.2f}", f"{max_without:.2f}", f"{min_without:.2f}"])
 
         fig = go.Figure(data=[go.Table(
-            header=dict(
-                values=['Hormone', 'Parameter', 'PCOS:Without', 'PCOS:With'],
-                line_color='black', fill_color='salmon',
-                align='center', font=dict(color='black', size=12)
-            ),
-            cells=dict(
-                values=[hormones, parameter_types, Without_values, With_values],
-                line_color="black", fill_color="mistyrose",
-                align='center', font=dict(color='black', size=11)
-            )
+            header=dict(values=['Hormone', 'Parameter', 'PCOS:Without', 'PCOS:With'],
+                        line_color='black', fill_color='salmon',
+                        align='center', font=dict(color='black', size=12)),
+            cells=dict(values=[hormones, parameter_types, Without_values, With_values],
+                       line_color="black", fill_color="mistyrose",
+                       align='center', font=dict(color='black', size=11))
         )])
-
         fig.update_layout(
-            title="Analysis of hormones in relation to the presence/absence of disease",
+            title="Hormone Levels vs PCOS presence/absence",
             title_font=dict(color="black", size=14),
             width=800, height=600
         )
-
-        display_table(fig)
-
-    # -------------------------------------------------------
-    # Buttons
-    # -------------------------------------------------------
-    for col in range(6):
-        pit.grid_columnconfigure(col, weight=1)
-
-    buttons = [
-        ("Age", age),
-        ("Menstruation Cycle", mens),
-        ("Glucose", glu),
-        ("Follicle Size", fol),
-        ("Hormones", hormona)
-    ]
-
-    for i, (text, command) in enumerate(buttons, start=1):
-        tk.Button(pit, text=text, command=command, bg="#FFD6BA", fg="black", font=('Garamond', 12), relief="raised",
-                  bd=3, activebackground="#F3A26D", activeforeground="black", padx=20, pady=8
-                  ).grid(row=i, column=0, columnspan=5, pady=5)
-
-    tk.Button(pit, text="Back to Menu", command=pit.destroy, bg="#FCD8CD", fg="black", font=('Times New Roman', 11),
-              relief="raised", bd=3, activebackground="#F3A26D", activeforeground="black",padx=20, pady=8
-              ).grid(row=len(buttons)+1, column=0, columnspan=5, pady=10)
+        show_table(fig)

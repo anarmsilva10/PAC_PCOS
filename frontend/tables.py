@@ -1,41 +1,30 @@
-import tkinter as tk
-from tkinter import Toplevel, Label
+import streamlit as st
 import plotly.graph_objects as go
-from PIL import Image, ImageTk
-import io
-
 
 def show_tables_window(data):
-    tbl = Toplevel()
-    tbl.title("Frequency Tables")
-    tbl.iconbitmap('images/image.ico')
-    tbl.geometry("450x450")
-    tbl.configure(bg="mistyrose")
+    st.subheader("📊 Frequency Tables")
 
+    # Datasets
     pcos = data[data['PCOS (Y/N)'] == 1]
     no_pcos = data[data['PCOS (Y/N)'] == 0]
 
-    # -------------------------------------------------------
-    # Helper: convert Plotly table → image → Tkinter display
-    # -------------------------------------------------------
-    def display_table(tab):
-        tab_img_bytes = tab.to_image(format="png")
-        tab_img = Image.open(io.BytesIO(tab_img_bytes))
-        tab_photo = ImageTk.PhotoImage(tab_img)
-
-        image_window = tk.Toplevel(tbl)
-        image_window.title("Table")
-        image_window.iconbitmap('images/image.ico')
-        image_window.configure(bg="mistyrose")
-
-        panel = Label(image_window, image=tab_photo, bg="mistyrose")
-        panel.image = tab_photo
-        panel.pack(expand=True, fill='both')
+    # Select Table
+    option = st.selectbox(
+        "Select a table to display:",
+        [
+            "PCOS Presence",
+            "BMI",
+            "Pregnancy",
+            "Weight Gain",
+            "Hair Growth",
+            "Physical Activity"
+        ]
+    )
 
     # -------------------------------------------------------
     # Table PCOS
     # -------------------------------------------------------
-    def table_PCOS():
+    if option == "PCOS Presence":
         PCOS_tot = data['PCOS (Y/N)'].count()
         PCOS_no = no_pcos.shape[0]
         PCOS_yes = pcos.shape[0]
@@ -59,12 +48,12 @@ def show_tables_window(data):
             title="Observations Regarding the Presence/Absence of PCOS",
             title_font=dict(color="black", size=14)
         )
-        display_table(tab)
+        st.plotly_chart(tab, use_container_width=True)
 
     # -------------------------------------------------------
     # Table BMI
     # -------------------------------------------------------
-    def table_BMI():
+    elif option == "BMI":
         def cat_bmi(bmi_val):
             if bmi_val < 18.5:
                 return 'Low Weight'
@@ -105,12 +94,12 @@ def show_tables_window(data):
         )])
         tab_BMI.update_layout(title="Nutritional Status of Individuals",
                               title_font=dict(color="black", size=14))
-        display_table(tab_BMI)
+        st.plotly_chart(tab_BMI, use_container_width=True)
 
     # -------------------------------------------------------
     # Table Pregnancy
     # -------------------------------------------------------
-    def table_pregnant():
+    elif option == "Pregnancy":
         Grav_tot = data[data['Pregnant(Y/N)'] == 1].shape[0]
         Grav_nd = data[(data['Pregnant(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 0)].shape[0]
         Grav_PCOS = data[(data['Pregnant(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 1)].shape[0]
@@ -126,12 +115,12 @@ def show_tables_window(data):
         )])
         tab_Grav.update_layout(title="Number of Pregnant Patients",
                                title_font=dict(color="black", size=14))
-        display_table(tab_Grav)
+        st.plotly_chart(tab_Grav, use_container_width=True)
 
     # -------------------------------------------------------
-    # Table weight
+    # Table Weight Gain
     # -------------------------------------------------------
-    def table_gweight():
+    elif option == "Weight Gain":
         gp_tot = data[data['Weight gain(Y/N)'] == 1].shape[0]
         sgp_tot = data[data['Weight gain(Y/N)'] == 0].shape[0]
         gp_nd = data[(data['Weight gain(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 0)].shape[0]
@@ -151,12 +140,12 @@ def show_tables_window(data):
         )])
         tab_gp.update_layout(title="Weight Gain",
                              title_font=dict(color="black", size=14))
-        display_table(tab_gp)
+        st.plotly_chart(tab_gp, use_container_width=True)
 
     # -------------------------------------------------------
-    # Table hair growth
+    # Table Hair Growth
     # -------------------------------------------------------
-    def table_hairgrowth():
+    elif option == "Hair Growth":
         cp_tot = data[data['hair growth(Y/N)'] == 1].shape[0]
         scp_tot = data[data['hair growth(Y/N)'] == 0].shape[0]
         cp_nd = data[(data['hair growth(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 0)].shape[0]
@@ -176,12 +165,12 @@ def show_tables_window(data):
         )])
         tab_cp.update_layout(title="Hair Growth",
                              title_font=dict(color="black", size=14))
-        display_table(tab_cp)
+        st.plotly_chart(tab_cp, use_container_width=True)
 
     # -------------------------------------------------------
-    # Table Reg.Exercise
+    # Table Physical Activity
     # -------------------------------------------------------
-    def table_regex():
+    elif option == "Physical Activity":
         regex_tot = data[data['Reg.Exercise(Y/N)'] == 1].shape[0]
         sregex_tot = data[data['Reg.Exercise(Y/N)'] == 0].shape[0]
         regex_nd = data[(data['Reg.Exercise(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 0)].shape[0]
@@ -201,28 +190,4 @@ def show_tables_window(data):
         )])
         tab_regex.update_layout(title="Regular Physical Activity",
                                 title_font=dict(color="black", size=14))
-        display_table(tab_regex)
-
-    # -------------------------------------------------------
-    # Buttons
-    # -------------------------------------------------------
-    for col in range(5):
-        tbl.grid_columnconfigure(col, weight=1)
-
-    buttons = [
-        ("PCOS Presence", table_PCOS),
-        ("BMI", table_BMI),
-        ("Pregnancy", table_pregnant),
-        ("Weight Gain", table_gweight),
-        ("Hair Growth", table_hairgrowth),
-        ("Physical Activity", table_regex)
-    ]
-
-    for i, (text, command) in enumerate(buttons, start=1):
-        tk.Button(tbl, text=text, command=command, bg="#FFD6BA", fg="black", font=('Garamond', 12), relief="raised",
-                  bd=3, activebackground="#F3A26D", activeforeground="black", padx=20, pady=8
-                  ).grid(row=i, column=0, columnspan=5, pady=5)
-
-    tk.Button(tbl, text="Back to Menu", command=tbl.destroy, bg="#FCD8CD", fg="black", font=('Times New Roman', 11),
-              relief="raised", bd=3, activebackground="#F3A26D", activeforeground="black",padx=20, pady=8
-              ).grid(row=len(buttons)+1, column=0, columnspan=5, pady=10)
+        st.plotly_chart(tab_regex, use_container_width=True)
