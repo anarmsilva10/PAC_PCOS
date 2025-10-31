@@ -93,4 +93,6 @@ To contribute to this project:
 ## Developers:
 Developed by Adriana Gomes & Ana Rita Silva, during master's degree in clinical bioinformatics, specifically in the Programming and Algorithms in Science course.
 
-University: Universidade de Aveiro – MSc in Clinical Bioinformatics
+University: Universidade de Aveiro – MSc in Clinical Bioinformatics.
+
+The new implementations were developed by Ana Rita Silva.
