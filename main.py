@@ -1,6 +1,4 @@
 import tkinter as tk
-from tkinter import messagebox
-import pandas as pd
 from load_data import load_data
 from frontend.parameter import show_parameters_window
 from frontend.tables import show_tables_window

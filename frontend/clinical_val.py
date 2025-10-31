@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import Toplevel, Label, Entry, Text, Button, END, GROOVE, messagebox
+from tkinter import Toplevel, Label, Entry, Text, Button, END, messagebox
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader

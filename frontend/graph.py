@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import Toplevel, Button
+from tkinter import Toplevel
 import matplotlib.pyplot as plt
 import seaborn as sns
 
