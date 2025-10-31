@@ -93,7 +93,12 @@ To contribute to this project:
 ## Developers:
 Developed by Adriana Gomes & Ana Rita Silva, during master's degree in clinical bioinformatics, specifically in the Programming and Algorithms in Science course.
 
-University: Universidade de Aveiro – MSc in Clinical Bioinformatics
+University: Universidade de Aveiro – MSc in Clinical Bioinformatics.
+
+## Branches
+update_version is a branch that features a new application architecture and a more efficient way of working with the application.
+
+The streamlite branch was created with the goal of transforming the initial application into a more complete and user-friendly application.
 
 ## License
 This project is licensed under the terms of the MIT License.
