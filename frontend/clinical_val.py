@@ -127,10 +127,12 @@ def show_clinical_eval_window(data):
     # Buttons
     # -------------------------------------------------------
     Button(top, text="Submit values", command=evaluate_values_and_print,
-           bg="lightpink", font=('calibri', 11), relief=GROOVE).grid(row=8, column=0, columnspan=2, pady=10, ipadx=10)
+           bg="#FFD6BA", fg="black", font=('Garamond', 12), relief="raised",
+                  bd=3).grid(row=8, column=0, columnspan=2, pady=10, ipadx=10)
 
     Button(top, text="Back to Menu", command=top.destroy,
-           bg="salmon", font=('calibri', 11), relief=GROOVE).grid(row=9, column=0, columnspan=2, pady=10, ipadx=10)
+           bg="#FCD8CD", fg="black", font=('Times New Roman', 11), relief="raised",
+                  bd=3).grid(row=9, column=0, columnspan=2, pady=10, ipadx=10)
 
     # Adjust layout
     for i in range(2):

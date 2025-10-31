@@ -236,25 +236,25 @@ def show_parameters_window(data):
 
         display_table(fig)
 
-    # -------------------------
-    # Buttons layout
-    # -------------------------
-    pit.grid_columnconfigure(tuple(range(6)), weight=1)
+    # -------------------------------------------------------
+    # Buttons
+    # -------------------------------------------------------
+    for col in range(6):
+        pit.grid_columnconfigure(col, weight=1)
 
-    tk.Button(pit, text="Age", command=age, padx=50, pady=10,
-              bg="mistyrose", font=('calibri', 10), relief="groove").grid(row=1, column=0, columnspan=5)
+    buttons = [
+        ("Age", age),
+        ("Menstruation Cycle", mens),
+        ("Glucose", glu),
+        ("Follicle Size", fol),
+        ("Hormones", hormona)
+    ]
 
-    tk.Button(pit, text="Menstruation Cycle", command=mens, padx=3, pady=10,
-              bg="mistyrose", font=('calibri', 10), relief="groove").grid(row=2, column=0, columnspan=5)
+    for i, (text, command) in enumerate(buttons, start=1):
+        tk.Button(pit, text=text, command=command, bg="#FFD6BA", fg="black", font=('Garamond', 12), relief="raised",
+                  bd=3, activebackground="#F3A26D", activeforeground="black", padx=20, pady=8
+                  ).grid(row=i, column=0, columnspan=5, pady=5)
 
-    tk.Button(pit, text="Glucose", command=glu, padx=43, pady=10,
-              bg="mistyrose", font=('calibri', 10), relief="groove").grid(row=3, column=0, columnspan=5)
-
-    tk.Button(pit, text="Follicle Size", command=fol, padx=8, pady=10,
-              bg="mistyrose", font=('calibri', 10), relief="groove").grid(row=4, column=0, columnspan=5)
-
-    tk.Button(pit, text="Hormones", command=hormona, padx=38, pady=10,
-              bg="mistyrose", font=('calibri', 10), relief="groove").grid(row=5, column=0, columnspan=5)
-
-    tk.Button(pit, text="Back to menu", command=pit.destroy, padx=26, pady=10,
-              bg="mistyrose", font=('calibri', 10), relief="groove").grid(row=6, column=0, columnspan=5)
+    tk.Button(pit, text="Back to Menu", command=pit.destroy, bg="#FCD8CD", fg="black", font=('Times New Roman', 11),
+              relief="raised", bd=3, activebackground="#F3A26D", activeforeground="black",padx=20, pady=8
+              ).grid(row=len(buttons)+1, column=0, columnspan=5, pady=10)

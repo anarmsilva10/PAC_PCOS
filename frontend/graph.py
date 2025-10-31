@@ -137,8 +137,11 @@ def show_graphs_window(data):
         plt.xticks([1,2], ['Without', 'With'])
         plt.show()
 
-    # --- BUTTON LAYOUT ---
-    tip.grid_columnconfigure(tuple(range(10)), weight=1)
+    # -------------------------------------------------------
+    # Buttons
+    # -------------------------------------------------------
+    for col in range(5):
+        tip.grid_columnconfigure(col, weight=1)
 
     buttons = [
         ("Age distribution in PCOS", g_age),
@@ -152,13 +155,11 @@ def show_graphs_window(data):
         ("Endometrial thickening among patients and non-patients", endometrium)
     ]
 
-    for i, (text, cmd) in enumerate(buttons, start=1):
-        Button(
-            tip, text=text, command=cmd, padx=30, pady=10,
-            bg="mistyrose", font=('calibri', 10), relief="groove"
-        ).grid(row=i, column=1, columnspan=5)
+    for i, (text, command) in enumerate(buttons, start=1):
+        tk.Button(tip, text=text, command=command, bg="#FFD6BA", fg="black", font=('Garamond', 12), relief="raised",
+                  bd=3, activebackground="#F3A26D", activeforeground="black", padx=20, pady=8
+                  ).grid(row=i, column=0, columnspan=5, pady=5)
 
-    Button(
-        tip, text="Back to Menu", command=tip.destroy, padx=112, pady=10,
-        bg="mistyrose", font=('calibri', 10), relief="groove"
-    ).grid(row=len(buttons) + 1, column=1, columnspan=5)
+    tk.Button(tip, text="Back to Menu", command=tip.destroy, bg="#FCD8CD", fg="black", font=('Times New Roman', 11),
+              relief="raised", bd=3, activebackground="#F3A26D", activeforeground="black" ,padx=20, pady=8
+              ).grid(row=len(buttons)+1, column=0, columnspan=5, pady=10)

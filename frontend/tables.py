@@ -9,7 +9,7 @@ def show_tables_window(data):
     tbl = Toplevel()
     tbl.title("Frequency Tables")
     tbl.iconbitmap('images/image.ico')
-    tbl.geometry("305x350")
+    tbl.geometry("450x450")
     tbl.configure(bg="mistyrose")
 
     pcos = data[data['PCOS (Y/N)'] == 1]
@@ -206,18 +206,23 @@ def show_tables_window(data):
     # -------------------------------------------------------
     # Buttons
     # -------------------------------------------------------
+    for col in range(5):
+        tbl.grid_columnconfigure(col, weight=1)
+
     buttons = [
-        ("Presença PCOS", table_PCOS),
+        ("PCOS Presence", table_PCOS),
         ("BMI", table_BMI),
-        ("Gravidez", table_pregnant),
-        ("Ganho de Peso", table_gweight),
-        ("Crescimento de Pelo", table_hairgrowth),
-        ("Atividade Física", table_regex)
+        ("Pregnancy", table_pregnant),
+        ("Weight Gain", table_gweight),
+        ("Hair Growth", table_hairgrowth),
+        ("Physical Activity", table_regex)
     ]
 
     for i, (text, command) in enumerate(buttons, start=1):
-        tk.Button(tbl, text=text, command=command, padx=50, pady=10,
-                  bg="lightpink", font=('calibri', 10), relief="groove").grid(row=i, column=0, columnspan=5, pady=3)
+        tk.Button(tbl, text=text, command=command, bg="#FFD6BA", fg="black", font=('Garamond', 12), relief="raised",
+                  bd=3, activebackground="#F3A26D", activeforeground="black", padx=20, pady=8
+                  ).grid(row=i, column=0, columnspan=5, pady=5)
 
-    tk.Button(tbl, text="Back to Menu", command=tbl.destroy,
-              padx=50, pady=10, bg="salmon", font=('calibri', 10), relief="groove").grid(row=8, column=0, columnspan=5, pady=10)
+    tk.Button(tbl, text="Back to Menu", command=tbl.destroy, bg="#FCD8CD", fg="black", font=('Times New Roman', 11),
+              relief="raised", bd=3, activebackground="#F3A26D", activeforeground="black",padx=20, pady=8
+              ).grid(row=len(buttons)+1, column=0, columnspan=5, pady=10)
