@@ -1,0 +1,17 @@
+name: pac_pcos
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - pandas
+  - matplotlib
+  - seaborn
+  - reportlab
+  - pillow
+  - plotly
+  - tk
+  - pip:
+      - kaleido
