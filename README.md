@@ -76,7 +76,9 @@ dependencies:
    conda activate pac_pcos
 ```
 3. Run the application:
-```python Programa.py```
+```
+python Programa.py
+```
 
 ## Contribution:
 To contribute to this project:
@@ -90,3 +92,6 @@ To contribute to this project:
 Developed by Adriana Gomes & Ana Rita Silva, during master's degree in clinical bioinformatics, specifically in the Programming and Algorithms in Science course.
 
 University: Universidade de Aveiro – MSc in Clinical Bioinformatics
+
+## License
+This project is licensed under the terms of the MIT License.
