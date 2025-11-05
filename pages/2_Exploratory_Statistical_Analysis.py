@@ -1,5 +1,13 @@
 import streamlit as st
 import plotly.graph_objects as go
+import pandas as pd
+
+# Page configuration
+st.set_page_config(
+    page_title="PCOS Analysis App",
+    page_icon="images/image.ico",
+    layout="centered",
+)
 
 col1, col2 = st.columns([1, 8])
 with col1:
@@ -12,193 +20,77 @@ if 'data' not in st.session_state:
 else:
     data = st.session_state['data']
 
-    # Datasets
-    pcos = data[data['PCOS (Y/N)'] == 1]
-    no_pcos = data[data['PCOS (Y/N)'] == 0]
+    col_disease = "PCOS (Y/N)"
+    if col_disease not in data.columns:
+        st.error("Dataset must contain a column named 'PCOS (Y/N)'.")
+        st.stop()
 
-    # Selection Menu
-    option = st.selectbox(
-        "Select the parameter to analyze:",
-        [
-            "Age",
-            "Menstruation Cycle",
-            "Glucose",
-            "Follicle Size",
-            "Hormones"
-        ]
+    # Datasets
+    pcos = data[data[col_disease] == 1]
+    no_pcos = data[data[col_disease] == 0]
+
+    # Numeric variables
+    numeric_vars = [
+        c for c in data.columns
+        if pd.api.types.is_numeric_dtype(data[c]) and c != col_disease
+    ]
+    
+    st.subheader("Choose a variable to explore")
+    selected_var = st.selectbox("Select variable:", numeric_vars)
+
+    # Compute metrics
+    metrics = {
+        "Average": (pcos[selected_var].mean(), no_pcos[selected_var].mean()),
+        "Maximum": (pcos[selected_var].max(), no_pcos[selected_var].max()),
+        "Minimum": (pcos[selected_var].min(), no_pcos[selected_var].min())
+    }
+
+    # ===================================================================
+    # TABLE
+    # ===================================================================
+    fig = go.Figure(data=[go.Table(
+        header=dict(
+            values=["Metric", "PCOS: Presence", "PCOS: Absence"],
+            fill_color="#FFE8CD", align="center", font=dict(color="black", size=12)
+        ),
+        cells=dict(
+            values=[
+                list(metrics.keys()),
+                [f"{v[0]:.2f}" for v in metrics.values()],
+                [f"{v[1]:.2f}" for v in metrics.values()]
+            ],
+            fill_color="#FFD6BA", align="center", font=dict(color="black", size=11)
+        )
+    )])
+
+    fig.update_layout(
+        title=f"{selected_var} vs PCOS presence/absence",
+        title_font=dict(color="white", size=16),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
     )
 
-    def show_table(fig):
-        st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
-    # -------------------------------------------------------
-    # Age
-    # -------------------------------------------------------
-    if option == "Age":
-        mean_with = pcos[' Age (yrs)'].mean()
-        max_with = pcos[' Age (yrs)'].max()
-        min_with = pcos[' Age (yrs)'].min()
+    # ===================================================================
+    # Graph
+    # ===================================================================
+    st.subheader("Comparison Chart")
 
-        mean_without = no_pcos[' Age (yrs)'].mean()
-        max_without = no_pcos[' Age (yrs)'].max()
-        min_without = no_pcos[' Age (yrs)'].min()
+    pcos_mean = pcos[selected_var].mean()
+    nopcos_mean = no_pcos[selected_var].mean()
 
-        fig = go.Figure(data=[go.Table(
-            header=dict(values=['PCOS', 'Average', 'Maximum', 'Minimum'],
-                        line_color='black', fill_color='#FFE8CD',
-                        align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[
-                ['Presence', 'Absence'],
-                [f"{mean_with:.2f}", f"{mean_without:.2f}"],
-                [max_with, max_without],
-                [min_with, min_without]
-            ],
-                line_color="black", fill_color="#FFD6BA",
-                align='center', font=dict(color='black', size=11))
-        )])
-        fig.update_layout(
-            title="Analysis of age in relation to PCOS presence/absence",
-            title_font=dict(color="white", size=14)
-        )
-        show_table(fig)
+    fig_bar = go.Figure()
+    fig_bar.add_bar(name="PCOS", x=["Average"], y=[pcos_mean], marker_color="maroon")
+    fig_bar.add_bar(name="No PCOS", x=["Average"], y=[nopcos_mean], marker_color="lightcoral")
 
-    # -------------------------------------------------------
-    # Menstrual Cycle
-    # -------------------------------------------------------
-    elif option == "Menstruation Cycle":
-        mean_with = pcos['Cycle length(days)'].mean()
-        max_with = pcos['Cycle length(days)'].max()
-        min_with = pcos['Cycle length(days)'].min()
+    fig_bar.update_layout(
+        title=f"Comparison of {selected_var} average between PCOS and non-PCOS groups",
+        title_font=dict(color="white", size=16),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="white"),
+        barmode="group",
+    )
 
-        mean_without = no_pcos['Cycle length(days)'].mean()
-        max_without = no_pcos['Cycle length(days)'].max()
-        min_without = no_pcos['Cycle length(days)'].min()
-
-        fig = go.Figure(data=[go.Table(
-            header=dict(values=['PCOS', 'Average', 'Maximum', 'Minimum'],
-                        line_color='black', fill_color='#FFE8CD',
-                        align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[
-                ['Presence', 'Absence'],
-                [f"{mean_with:.2f}", f"{mean_without:.2f}"],
-                [max_with, max_without],
-                [min_with, min_without]
-            ],
-                line_color="black", fill_color="#FFD6BA",
-                align='center', font=dict(color='black', size=11))
-        )])
-        fig.update_layout(
-            title="Menstrual Cycle Length (days) vs PCOS presence/absence",
-            title_font=dict(color="white", size=14)
-        )
-        show_table(fig)
-
-    # -------------------------------------------------------
-    # Glucose
-    # -------------------------------------------------------
-    elif option == "Glucose":
-        mean_with = pcos['RBS(mg/dl)'].mean()
-        max_with = pcos['RBS(mg/dl)'].max()
-        min_with = pcos['RBS(mg/dl)'].min()
-
-        mean_without = no_pcos['RBS(mg/dl)'].mean()
-        max_without = no_pcos['RBS(mg/dl)'].max()
-        min_without = no_pcos['RBS(mg/dl)'].min()
-
-        fig = go.Figure(data=[go.Table(
-            header=dict(values=['PCOS', 'Average', 'Maximum', 'Minimum'],
-                        line_color='black', fill_color='#FFE8CD',
-                        align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[
-                ['Presence', 'Absence'],
-                [f"{mean_with:.2f}", f"{mean_without:.2f}"],
-                [max_with, max_without],
-                [min_with, min_without]
-            ],
-                line_color="black", fill_color="#FFD6BA",
-                align='center', font=dict(color='black', size=11))
-        )])
-        fig.update_layout(
-            title="Glucose (mg/dl) vs PCOS presence/absence",
-            title_font=dict(color="white", size=14)
-        )
-        show_table(fig)
-
-    # -------------------------------------------------------
-    # Follicle Size
-    # -------------------------------------------------------
-    elif option == "Follicle Size":
-        follicle_parameters = {'Follicle No. (L)': 'Left', 'Follicle No. (R)': 'Right'}
-
-        ovary_sides, parameter_types, With_values, Without_values = [], [], [], []
-
-        for parameter, side in follicle_parameters.items():
-            mean_with = pcos[parameter].mean()
-            max_with = pcos[parameter].max()
-            min_with = pcos[parameter].min()
-
-            mean_without = no_pcos[parameter].mean()
-            max_without = no_pcos[parameter].max()
-            min_without = no_pcos[parameter].min()
-
-            ovary_sides.extend([side] * 3)
-            parameter_types.extend(['Average', 'Maximum', 'Minimum'])
-            With_values.extend([f"{mean_with:.2f}", f"{max_with:.2f}", f"{min_with:.2f}"])
-            Without_values.extend([f"{mean_without:.2f}", f"{max_without:.2f}", f"{min_without:.2f}"])
-
-        fig = go.Figure(data=[go.Table(
-            header=dict(values=['Ovary', 'Parameter', 'PCOS: Presence', 'PCOS: Absence'],
-                        line_color='black', fill_color='#FFE8CD',
-                        align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[ovary_sides, parameter_types, With_values,  Without_values],
-                       line_color="black", fill_color="#FFD6BA",
-                       align='center', font=dict(color='black', size=11))
-        )])
-        fig.update_layout(
-            title="Number of Follicles vs PCOS presence/absence",
-            title_font=dict(color="white", size=14)
-        )
-        show_table(fig)
-
-    # -------------------------------------------------------
-    # Hormones
-    # -------------------------------------------------------
-    elif option == "Hormones":
-        hormone_parameters = {
-            'AMH(ng/mL)': 'AMH',
-            'TSH (mIU/L)': 'TSH',
-            'FSH(mIU/mL)': 'FSH',
-            'LH(mIU/mL)': 'LH',
-            'PRG(ng/mL)': 'PRG'
-        }
-
-        hormones, parameter_types, With_values, Without_values = [], [], [], []
-
-        for parameter, hormone in hormone_parameters.items():
-            mean_with = pcos[parameter].mean()
-            max_with = pcos[parameter].max()
-            min_with = pcos[parameter].min()
-
-            mean_without = no_pcos[parameter].mean()
-            max_without = no_pcos[parameter].max()
-            min_without = no_pcos[parameter].min()
-
-            hormones.extend([hormone] * 3)
-            parameter_types.extend(['Average', 'Maximum', 'Minimum'])
-            With_values.extend([f"{mean_with:.2f}", f"{max_with:.2f}", f"{min_with:.2f}"])
-            Without_values.extend([f"{mean_without:.2f}", f"{max_without:.2f}", f"{min_without:.2f}"])
-
-        fig = go.Figure(data=[go.Table(
-            header=dict(values=['Hormone', 'Parameter', 'PCOS: Presence', 'PCOS: Absence',],
-                        line_color='black', fill_color='#FFE8CD',
-                        align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[hormones, parameter_types, With_values, Without_values],
-                       line_color="black", fill_color="#FFD6BA",
-                       align='center', font=dict(color='black', size=11))
-        )])
-        fig.update_layout(
-            title="Hormone Levels vs PCOS presence/absence",
-            title_font=dict(color="white", size=14),
-            width=800, height=600
-        )
-        show_table(fig)
+    st.plotly_chart(fig_bar, use_container_width=True)

@@ -4,6 +4,13 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 
+# Page configuration
+st.set_page_config(
+    page_title="PCOS Analysis App",
+    page_icon="images/image.ico",
+    layout="centered",
+)
+
 col1, col2 = st.columns([1, 8])
 with col1:
     st.image("images/frequency.png", width=100)
