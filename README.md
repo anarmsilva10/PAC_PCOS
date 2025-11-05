@@ -9,6 +9,8 @@ The application provides an interactive graphical interface (built with Tkinter)
 
 The goal of this tool is to provide both exploratory data analysis and basic clinical insights using a real [PCOS dataset](https://www.kaggle.com/datasets/shreyasvedpathak/pcos-dataset/data) obtained from [Kaggle](https://www.kaggle.com/).
 
+This branch aims to incorporate the previous version (in update_version branch) into a Streamlit application. In addition, it aims to make some changes in order to make the application as interactive as possible.
+
 ## Dataset
 The application uses the open-source PCOS Dataset from Kaggle, originally published by Shreyas Vedpathak.
 - Original dataset: 45 columns, 541 observations
@@ -79,7 +81,7 @@ dependencies:
 ```
 3. Run the application:
 ```
-  streamlite run main.py
+  streamlit run main.py
 ```
 
 ## Contribution:
