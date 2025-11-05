@@ -1,5 +1,8 @@
 import streamlit as st
+import pandas as pd
+import numpy as np
 import plotly.graph_objects as go
+import plotly.express as px
 
 col1, col2 = st.columns([1, 8])
 with col1:
@@ -7,195 +10,103 @@ with col1:
 with col2:
     st.title("Frequency Tables")
 
-if 'data' not in st.session_state:
-    st.warning("No data, please upload the correct dataset.")
+data = st.session_state.get("data", None)
+if data is None:
+    st.warning("No dataset loaded.")
+    st.stop()
+
+# Disease variable (Y-1/N-0)
+col_disease = "PCOS (Y/N)"
+
+# Selection of variable to study
+variable = [c for c in data.columns if c != col_disease]
+var = st.selectbox("Select a variable to analyze:", variable)
+
+# Variable type
+if np.issubdtype(data[var].dtype, np.number):
+    type = "numeric"
 else:
-    data = st.session_state['data']
+    type = "categorical"
 
-    # Datasets
-    pcos = data[data['PCOS (Y/N)'] == 1]
-    no_pcos = data[data['PCOS (Y/N)'] == 0]
+# ===================================================================
+# Numeric Variable
+# ===================================================================
 
-    # Select Table
-    option = st.selectbox(
-        "Select a table to display:",
-        [
-            "PCOS Presence",
-            "BMI",
-            "Pregnancy",
-            "Weight Gain",
-            "Hair Growth",
-            "Physical Activity"
-        ]
-    )
+if type == 'numeric':
+    bins = st.slider("Number of intervals:", min_value=3, max_value=20, value=6)
 
-    # -------------------------------------------------------
-    # Table PCOS
-    # -------------------------------------------------------
-    if option == "PCOS Presence":
-        PCOS_tot = data['PCOS (Y/N)'].count()
-        PCOS_no = no_pcos.shape[0]
-        PCOS_yes = pcos.shape[0]
+    data['_interval'] = pd.cut(data[var], bins=bins)
+    group_var = '_interval'
+else:
+    group_var = var
 
-        tab = go.Figure(data=[go.Table(
-            header=dict(
-                values=['', 'No. of Individuals'],
-                line_color='black', fill_color='#FFE8CD',
-                align='center', font=dict(color='black', size=12)
-            ),
-            cells=dict(
-                values=[
-                    ['Patients', 'Non-patients', 'Total Observations'],
-                    [PCOS_yes, PCOS_no, PCOS_tot]
-                ],
-                line_color="black", fill_color="#FFD6BA",
-                align='center', font=dict(color='black', size=11)
-            )
-        )])
-        tab.update_layout(
-            title="Observations Regarding the Presence/Absence of PCOS",
-            title_font=dict(color="white", size=14)
-        )
-        st.plotly_chart(tab, use_container_width=True)
+# ===================================================================
+# TABLE
+# ===================================================================
+table = pd.crosstab(data[group_var], data[col_disease], margins=True)
+table.columns = ['No PCOS', 'PCOS', 'Total']
+table = table.reset_index().rename(columns={group_var: "Category"})
 
-    # -------------------------------------------------------
-    # Table BMI
-    # -------------------------------------------------------
-    elif option == "BMI":
-        def cat_bmi(bmi_val):
-            if bmi_val < 18.5:
-                return 'Low Weight'
-            elif 18.5 <= bmi_val < 24.9:
-                return 'Normal Weight'
-            elif 25 <= bmi_val < 29.9:
-                return 'Overweight'
-            elif 30 <= bmi_val < 34.9:
-                return 'Obesity Class 1'
-            elif 35 <= bmi_val < 39.9:
-                return 'Obesity Class 2'
-            else:
-                return 'Obesity Class 3'
+# Percentages
+total_obs = table.loc[table["Category"] == "All", "Total"].values[0]
+table["Percent (%)"] = (table["Total"] / total_obs * 100).round(1)
 
-        categorias = {
-            cat: {'Patients': 0, 'Non-patients': 0, 'Total': 0}
-            for cat in ['Low Weight', 'Normal Weight', 'Overweight',
-                        'Obesity Class 1', 'Obesity Class 2', 'Obesity Class 3']
-        }
+table_display = table[table["Category"] != "All"].copy()
 
-        for _, row in data.iterrows():
-            bmi_cat = cat_bmi(row['BMI'])
-            grupo = 'Patients' if row['PCOS (Y/N)'] == 1 else 'Non-patients'
-            categorias[bmi_cat][grupo] += 1
-            categorias[bmi_cat]['Total'] += 1
+table_display["Category"] = table_display["Category"].apply(
+    lambda x: f"[{x.left:.1f} – {x.right:.1f}]" if isinstance(x, pd.Interval) else str(x)
+)
 
-        tab_BMI_data = [[categ, v['Patients'], v['Non-patients'], v['Total']]
-                        for categ, v in categorias.items()]
-        tab_BMI_data_tr = list(map(list, zip(*tab_BMI_data)))
+st.subheader(f"Distribution of {var} by PCOS presence")
 
-        tab_BMI = go.Figure(data=[go.Table(
-            header=dict(values=['Category', 'Patients', 'Non-patients', 'Total'],
-                        line_color='black', fill_color='#FFE8CD',
-                        align='center', font=dict(color='black', size=12)),
-            cells=dict(values=tab_BMI_data_tr,
-                       line_color="black", fill_color="#FFD6BA",
-                       align='center', font=dict(color='black', size=11))
-        )])
-        tab_BMI.update_layout(title="Nutritional Status of Individuals",
-                              title_font=dict(color="white", size=14))
-        st.plotly_chart(tab_BMI, use_container_width=True)
+# Table configuration
+fig = go.Figure(data=[go.Table(
+    header=dict(values=["Category", "No PCOS", "PCOS", "Total", "Percent (%)"],
+                fill_color='#FFE8CD', align='center', font=dict(color='black', size=12)),
+    cells=dict(values=[
+        table_display["Category"],
+        table_display["No PCOS"],
+        table_display["PCOS"],
+        table_display["Total"],
+        table_display["Percent (%)"]
+    ],
+        fill_color='#FFD6BA', align='center', font=dict(color='black', size=12)))
+])
+fig.update_layout(title=f"Distribution of {var} by PCOS presence")
+st.plotly_chart(fig, use_container_width=True)
 
-    # -------------------------------------------------------
-    # Table Pregnancy
-    # -------------------------------------------------------
-    elif option == "Pregnancy":
-        Grav_tot = data[data['Pregnant(Y/N)'] == 1].shape[0]
-        Grav_nd = data[(data['Pregnant(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 0)].shape[0]
-        Grav_PCOS = data[(data['Pregnant(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 1)].shape[0]
+# ===================================================================
+# Graph
+# ===================================================================
 
-        tab_Grav = go.Figure(data=[go.Table(
-            header=dict(values=['', 'No. of Individuals'],
-                        line_color='black', fill_color='#FFE8CD',
-                        align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[['Patients', 'Non-patients', 'Total Observations'],
-                               [Grav_PCOS, Grav_nd, Grav_tot]],
-                       line_color="black", fill_color="#FFD6BA",
-                       align='center', font=dict(color='black', size=11))
-        )])
-        tab_Grav.update_layout(title="Number of Pregnant Patients",
-                               title_font=dict(color="white", size=14))
-        st.plotly_chart(tab_Grav, use_container_width=True)
+st.subheader("Comparison chart")
+table_display["Category"] = table_display["Category"].astype(str)
 
-    # -------------------------------------------------------
-    # Table Weight Gain
-    # -------------------------------------------------------
-    elif option == "Weight Gain":
-        gp_tot = data[data['Weight gain(Y/N)'] == 1].shape[0]
-        sgp_tot = data[data['Weight gain(Y/N)'] == 0].shape[0]
-        gp_nd = data[(data['Weight gain(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 0)].shape[0]
-        gp_PCOS = data[(data['Weight gain(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 1)].shape[0]
-        sgp_nd = data[(data['Weight gain(Y/N)'] == 0) & (data['PCOS (Y/N)'] == 0)].shape[0]
-        sgp_PCOS = data[(data['Weight gain(Y/N)'] == 0) & (data['PCOS (Y/N)'] == 1)].shape[0]
+fig_bar = px.bar(
+    table_display,
+    x="Category",
+    y=["No PCOS", "PCOS"],
+    barmode="stack", 
+    color_discrete_map={
+        "No PCOS": "lightcoral",  
+        "PCOS": "maroon"      
+    },
+    title=f"Comparison of {var} between PCOS and non-PCOS groups"
+)
 
-        tab_gp = go.Figure(data=[go.Table(
-            header=dict(values=['', 'No weight gain', 'Weight gain'],
-                        line_color='black', fill_color='#FFE8CD',
-                        align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[['Patients', 'Non-patients', 'Total Observations'],
-                               [sgp_PCOS, sgp_nd, sgp_tot],
-                               [gp_PCOS, gp_nd, gp_tot]],
-                       line_color="black", fill_color="#FFD6BA",
-                       align='center', font=dict(color='black', size=11))
-        )])
-        tab_gp.update_layout(title="Weight Gain",
-                             title_font=dict(color="white", size=14))
-        st.plotly_chart(tab_gp, use_container_width=True)
+# Optional: tweak layout
+fig_bar.update_layout(
+    xaxis_title="Category",
+    yaxis_title="Number of individuals",
+    title_font=dict(size=16, color="white"),
+    legend_title_text="Group",
+    plot_bgcolor="rgba(0,0,0,0)",
+    paper_bgcolor="rgba(0,0,0,0)", 
+    font=dict(color="white"),
+)
 
-    # -------------------------------------------------------
-    # Table Hair Growth
-    # -------------------------------------------------------
-    elif option == "Hair Growth":
-        cp_tot = data[data['hair growth(Y/N)'] == 1].shape[0]
-        scp_tot = data[data['hair growth(Y/N)'] == 0].shape[0]
-        cp_nd = data[(data['hair growth(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 0)].shape[0]
-        cp_PCOS = data[(data['hair growth(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 1)].shape[0]
-        scp_nd = data[(data['hair growth(Y/N)'] == 0) & (data['PCOS (Y/N)'] == 0)].shape[0]
-        scp_PCOS = data[(data['hair growth(Y/N)'] == 0) & (data['PCOS (Y/N)'] == 1)].shape[0]
+st.plotly_chart(fig_bar, use_container_width=True)
 
-        tab_cp = go.Figure(data=[go.Table(
-            header=dict(values=['', 'No growth', 'Growth'],
-                        line_color='black', fill_color='#FFE8CD',
-                        align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[['Patients', 'Non-patients', 'Total Observations'],
-                               [scp_PCOS, scp_nd, scp_tot],
-                               [cp_PCOS, cp_nd, cp_tot]],
-                       line_color="black", fill_color="#FFD6BA",
-                       align='center', font=dict(color='black', size=11))
-        )])
-        tab_cp.update_layout(title="Hair Growth",
-                             title_font=dict(color="white", size=14))
-        st.plotly_chart(tab_cp, use_container_width=True)
-
-    # -------------------------------------------------------
-    # Table Physical Activity
-    # -------------------------------------------------------
-    elif option == "Physical Activity":
-        regex_tot = data[data['Reg.Exercise(Y/N)'] == 1].shape[0]
-        sregex_tot = data[data['Reg.Exercise(Y/N)'] == 0].shape[0]
-        regex_nd = data[(data['Reg.Exercise(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 0)].shape[0]
-        regex_PCOS = data[(data['Reg.Exercise(Y/N)'] == 1) & (data['PCOS (Y/N)'] == 1)].shape[0]
-        sregex_nd = data[(data['Reg.Exercise(Y/N)'] == 0) & (data['PCOS (Y/N)'] == 0)].shape[0]
-        sregex_PCOS = data[(data['Reg.Exercise(Y/N)'] == 0) & (data['PCOS (Y/N)'] == 1)].shape[0]
-
-        tab_regex = go.Figure(data=[go.Table(
-            header=dict(values=['', 'No physical activity', 'Physical activity'],
-                        line_color='black', fill_color='#FFE8CD',
-                        align='center', font=dict(color='black', size=11)),
-            cells=dict(values=[['Patients', 'Non-patients', 'Total Observations'],
-                               [sregex_PCOS, sregex_nd, sregex_tot],
-                               [regex_PCOS, regex_nd, regex_tot]],
-                       line_color="black", fill_color="#FFD6BA",
-                       align='center', font=dict(color='black', size=11))
-        )])
-        tab_regex.update_layout(title="Regular Physical Activity",
-                                title_font=dict(color="white", size=14))
-        st.plotly_chart(tab_regex, use_container_width=True)
+# Clean data
+if "_interval" in data.columns:
+    data.drop(columns=["_interval"], inplace=True)
