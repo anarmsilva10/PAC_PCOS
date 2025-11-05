@@ -2,14 +2,21 @@ import streamlit as st
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
-import os
 
-def show_clinical_eval_window(data=None):
+col1, col2 = st.columns([1, 8])
+with col1:
+    st.image("images/medical-report.png", width=100)
+with col2:
     st.title("Assess your medical condition")
-    st.markdown(
+st.markdown(
         "Please enter your values below to get a personalized clinical assessment. "
         "A PDF report will also be generated."
     )
+
+if 'data' not in st.session_state:
+    st.warning("No data, please upload the correct dataset.")
+else:
+    data = st.session_state['data']
 
     # -------------------------------------------------------
     # Input fields

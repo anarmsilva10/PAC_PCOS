@@ -1,8 +1,16 @@
 import streamlit as st
 import plotly.graph_objects as go
 
-def show_tables_window(data):
-    st.subheader("📊 Frequency Tables")
+col1, col2 = st.columns([1, 8])
+with col1:
+    st.image("images/frequency.png", width=100)
+with col2:
+    st.title("Frequency Tables")
+
+if 'data' not in st.session_state:
+    st.warning("No data, please upload the correct dataset.")
+else:
+    data = st.session_state['data']
 
     # Datasets
     pcos = data[data['PCOS (Y/N)'] == 1]
@@ -32,21 +40,21 @@ def show_tables_window(data):
         tab = go.Figure(data=[go.Table(
             header=dict(
                 values=['', 'No. of Individuals'],
-                line_color='black', fill_color='salmon',
+                line_color='black', fill_color='#FFE8CD',
                 align='center', font=dict(color='black', size=12)
             ),
             cells=dict(
                 values=[
-                    ['Total Observations', 'Non-patients', 'Patients'],
-                    [PCOS_tot, PCOS_no, PCOS_yes]
+                    ['Patients', 'Non-patients', 'Total Observations'],
+                    [PCOS_yes, PCOS_no, PCOS_tot]
                 ],
-                line_color="black", fill_color="mistyrose",
+                line_color="black", fill_color="#FFD6BA",
                 align='center', font=dict(color='black', size=11)
             )
         )])
         tab.update_layout(
             title="Observations Regarding the Presence/Absence of PCOS",
-            title_font=dict(color="black", size=14)
+            title_font=dict(color="white", size=14)
         )
         st.plotly_chart(tab, use_container_width=True)
 
@@ -69,7 +77,7 @@ def show_tables_window(data):
                 return 'Obesity Class 3'
 
         categorias = {
-            cat: {'Non-patients': 0, 'Patients': 0, 'Total': 0}
+            cat: {'Patients': 0, 'Non-patients': 0, 'Total': 0}
             for cat in ['Low Weight', 'Normal Weight', 'Overweight',
                         'Obesity Class 1', 'Obesity Class 2', 'Obesity Class 3']
         }
@@ -80,20 +88,20 @@ def show_tables_window(data):
             categorias[bmi_cat][grupo] += 1
             categorias[bmi_cat]['Total'] += 1
 
-        tab_BMI_data = [[categ, v['Non-patients'], v['Patients'], v['Total']]
+        tab_BMI_data = [[categ, v['Patients'], v['Non-patients'], v['Total']]
                         for categ, v in categorias.items()]
         tab_BMI_data_tr = list(map(list, zip(*tab_BMI_data)))
 
         tab_BMI = go.Figure(data=[go.Table(
-            header=dict(values=['Category', 'Non-patients', 'Patients', 'Total'],
-                        line_color='black', fill_color='salmon',
+            header=dict(values=['Category', 'Patients', 'Non-patients', 'Total'],
+                        line_color='black', fill_color='#FFE8CD',
                         align='center', font=dict(color='black', size=12)),
             cells=dict(values=tab_BMI_data_tr,
-                       line_color="black", fill_color="mistyrose",
+                       line_color="black", fill_color="#FFD6BA",
                        align='center', font=dict(color='black', size=11))
         )])
         tab_BMI.update_layout(title="Nutritional Status of Individuals",
-                              title_font=dict(color="black", size=14))
+                              title_font=dict(color="white", size=14))
         st.plotly_chart(tab_BMI, use_container_width=True)
 
     # -------------------------------------------------------
@@ -106,15 +114,15 @@ def show_tables_window(data):
 
         tab_Grav = go.Figure(data=[go.Table(
             header=dict(values=['', 'No. of Individuals'],
-                        line_color='black', fill_color='salmon',
+                        line_color='black', fill_color='#FFE8CD',
                         align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[['Total Observations', 'Non-patients', 'Patients'],
-                               [Grav_tot, Grav_nd, Grav_PCOS]],
-                       line_color="black", fill_color="mistyrose",
+            cells=dict(values=[['Patients', 'Non-patients', 'Total Observations'],
+                               [Grav_PCOS, Grav_nd, Grav_tot]],
+                       line_color="black", fill_color="#FFD6BA",
                        align='center', font=dict(color='black', size=11))
         )])
         tab_Grav.update_layout(title="Number of Pregnant Patients",
-                               title_font=dict(color="black", size=14))
+                               title_font=dict(color="white", size=14))
         st.plotly_chart(tab_Grav, use_container_width=True)
 
     # -------------------------------------------------------
@@ -130,16 +138,16 @@ def show_tables_window(data):
 
         tab_gp = go.Figure(data=[go.Table(
             header=dict(values=['', 'No weight gain', 'Weight gain'],
-                        line_color='black', fill_color='salmon',
+                        line_color='black', fill_color='#FFE8CD',
                         align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[['Total Observations', 'Non-patients', 'Patients'],
-                               [sgp_tot, sgp_nd, sgp_PCOS],
-                               [gp_tot, gp_nd, gp_PCOS]],
-                       line_color="black", fill_color="mistyrose",
+            cells=dict(values=[['Patients', 'Non-patients', 'Total Observations'],
+                               [sgp_PCOS, sgp_nd, sgp_tot],
+                               [gp_PCOS, gp_nd, gp_tot]],
+                       line_color="black", fill_color="#FFD6BA",
                        align='center', font=dict(color='black', size=11))
         )])
         tab_gp.update_layout(title="Weight Gain",
-                             title_font=dict(color="black", size=14))
+                             title_font=dict(color="white", size=14))
         st.plotly_chart(tab_gp, use_container_width=True)
 
     # -------------------------------------------------------
@@ -155,16 +163,16 @@ def show_tables_window(data):
 
         tab_cp = go.Figure(data=[go.Table(
             header=dict(values=['', 'No growth', 'Growth'],
-                        line_color='black', fill_color='salmon',
+                        line_color='black', fill_color='#FFE8CD',
                         align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[['Total Observations', 'Non-patients', 'Patients'],
-                               [scp_tot, scp_nd, scp_PCOS],
-                               [cp_tot, cp_nd, cp_PCOS]],
-                       line_color="black", fill_color="mistyrose",
+            cells=dict(values=[['Patients', 'Non-patients', 'Total Observations'],
+                               [scp_PCOS, scp_nd, scp_tot],
+                               [cp_PCOS, cp_nd, cp_tot]],
+                       line_color="black", fill_color="#FFD6BA",
                        align='center', font=dict(color='black', size=11))
         )])
         tab_cp.update_layout(title="Hair Growth",
-                             title_font=dict(color="black", size=14))
+                             title_font=dict(color="white", size=14))
         st.plotly_chart(tab_cp, use_container_width=True)
 
     # -------------------------------------------------------
@@ -180,14 +188,14 @@ def show_tables_window(data):
 
         tab_regex = go.Figure(data=[go.Table(
             header=dict(values=['', 'No physical activity', 'Physical activity'],
-                        line_color='black', fill_color='salmon',
+                        line_color='black', fill_color='#FFE8CD',
                         align='center', font=dict(color='black', size=11)),
-            cells=dict(values=[['Total Observations', 'Non-patients', 'Patients'],
-                               [sregex_tot, sregex_nd, sregex_PCOS],
-                               [regex_tot, regex_nd, regex_PCOS]],
-                       line_color="black", fill_color="mistyrose",
+            cells=dict(values=[['Patients', 'Non-patients', 'Total Observations'],
+                               [sregex_PCOS, sregex_nd, sregex_tot],
+                               [regex_PCOS, regex_nd, regex_tot]],
+                       line_color="black", fill_color="#FFD6BA",
                        align='center', font=dict(color='black', size=11))
         )])
         tab_regex.update_layout(title="Regular Physical Activity",
-                                title_font=dict(color="black", size=14))
+                                title_font=dict(color="white", size=14))
         st.plotly_chart(tab_regex, use_container_width=True)

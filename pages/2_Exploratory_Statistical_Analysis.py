@@ -1,8 +1,16 @@
 import streamlit as st
 import plotly.graph_objects as go
 
-def show_parameters_window(data):
-    st.subheader("📈 Exploratory Statistical Analysis")
+col1, col2 = st.columns([1, 8])
+with col1:
+    st.image("images/exploration.png", width=100)
+with col2:
+    st.title("Exploratory Statistical Analysis")
+
+if 'data' not in st.session_state:
+    st.warning("No data, please upload the correct dataset.")
+else:
+    data = st.session_state['data']
 
     # Datasets
     pcos = data[data['PCOS (Y/N)'] == 1]
@@ -37,20 +45,20 @@ def show_parameters_window(data):
 
         fig = go.Figure(data=[go.Table(
             header=dict(values=['PCOS', 'Average', 'Maximum', 'Minimum'],
-                        line_color='black', fill_color='salmon',
+                        line_color='black', fill_color='#FFE8CD',
                         align='center', font=dict(color='black', size=12)),
             cells=dict(values=[
-                ['With', 'Without'],
+                ['Presence', 'Absence'],
                 [f"{mean_with:.2f}", f"{mean_without:.2f}"],
                 [max_with, max_without],
                 [min_with, min_without]
             ],
-                line_color="black", fill_color="mistyrose",
+                line_color="black", fill_color="#FFD6BA",
                 align='center', font=dict(color='black', size=11))
         )])
         fig.update_layout(
             title="Analysis of age in relation to PCOS presence/absence",
-            title_font=dict(color="black", size=14)
+            title_font=dict(color="white", size=14)
         )
         show_table(fig)
 
@@ -68,20 +76,20 @@ def show_parameters_window(data):
 
         fig = go.Figure(data=[go.Table(
             header=dict(values=['PCOS', 'Average', 'Maximum', 'Minimum'],
-                        line_color='black', fill_color='salmon',
+                        line_color='black', fill_color='#FFE8CD',
                         align='center', font=dict(color='black', size=12)),
             cells=dict(values=[
-                ['With', 'Without'],
+                ['Presence', 'Absence'],
                 [f"{mean_with:.2f}", f"{mean_without:.2f}"],
                 [max_with, max_without],
                 [min_with, min_without]
             ],
-                line_color="black", fill_color="mistyrose",
+                line_color="black", fill_color="#FFD6BA",
                 align='center', font=dict(color='black', size=11))
         )])
         fig.update_layout(
             title="Menstrual Cycle Length (days) vs PCOS presence/absence",
-            title_font=dict(color="black", size=14)
+            title_font=dict(color="white", size=14)
         )
         show_table(fig)
 
@@ -99,20 +107,20 @@ def show_parameters_window(data):
 
         fig = go.Figure(data=[go.Table(
             header=dict(values=['PCOS', 'Average', 'Maximum', 'Minimum'],
-                        line_color='black', fill_color='salmon',
+                        line_color='black', fill_color='#FFE8CD',
                         align='center', font=dict(color='black', size=12)),
             cells=dict(values=[
-                ['With', 'Without'],
+                ['Presence', 'Absence'],
                 [f"{mean_with:.2f}", f"{mean_without:.2f}"],
                 [max_with, max_without],
                 [min_with, min_without]
             ],
-                line_color="black", fill_color="mistyrose",
+                line_color="black", fill_color="#FFD6BA",
                 align='center', font=dict(color='black', size=11))
         )])
         fig.update_layout(
             title="Glucose (mg/dl) vs PCOS presence/absence",
-            title_font=dict(color="black", size=14)
+            title_font=dict(color="white", size=14)
         )
         show_table(fig)
 
@@ -139,16 +147,16 @@ def show_parameters_window(data):
             Without_values.extend([f"{mean_without:.2f}", f"{max_without:.2f}", f"{min_without:.2f}"])
 
         fig = go.Figure(data=[go.Table(
-            header=dict(values=['Ovary', 'Parameter', 'PCOS:Without', 'PCOS:With'],
-                        line_color='black', fill_color='salmon',
+            header=dict(values=['Ovary', 'Parameter', 'PCOS: Presence', 'PCOS: Absence'],
+                        line_color='black', fill_color='#FFE8CD',
                         align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[ovary_sides, parameter_types, Without_values, With_values],
-                       line_color="black", fill_color="mistyrose",
+            cells=dict(values=[ovary_sides, parameter_types, With_values,  Without_values],
+                       line_color="black", fill_color="#FFD6BA",
                        align='center', font=dict(color='black', size=11))
         )])
         fig.update_layout(
             title="Number of Follicles vs PCOS presence/absence",
-            title_font=dict(color="black", size=14)
+            title_font=dict(color="white", size=14)
         )
         show_table(fig)
 
@@ -181,16 +189,16 @@ def show_parameters_window(data):
             Without_values.extend([f"{mean_without:.2f}", f"{max_without:.2f}", f"{min_without:.2f}"])
 
         fig = go.Figure(data=[go.Table(
-            header=dict(values=['Hormone', 'Parameter', 'PCOS:Without', 'PCOS:With'],
-                        line_color='black', fill_color='salmon',
+            header=dict(values=['Hormone', 'Parameter', 'PCOS: Presence', 'PCOS: Absence',],
+                        line_color='black', fill_color='#FFE8CD',
                         align='center', font=dict(color='black', size=12)),
-            cells=dict(values=[hormones, parameter_types, Without_values, With_values],
-                       line_color="black", fill_color="mistyrose",
+            cells=dict(values=[hormones, parameter_types, With_values, Without_values],
+                       line_color="black", fill_color="#FFD6BA",
                        align='center', font=dict(color='black', size=11))
         )])
         fig.update_layout(
             title="Hormone Levels vs PCOS presence/absence",
-            title_font=dict(color="black", size=14),
+            title_font=dict(color="white", size=14),
             width=800, height=600
         )
         show_table(fig)

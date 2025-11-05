@@ -4,8 +4,16 @@ import seaborn as sns
 
 sns.set_theme(style="whitegrid")
 
-def show_graphs_window(data):
-    st.subheader("📊 Analysis Charts")
+col1, col2 = st.columns([1, 8])
+with col1:
+    st.image("images/bar-chart.png", width=100)
+with col2:
+    st.title("Analysis Charts")
+
+if 'data' not in st.session_state:
+    st.warning("No data, please upload the correct dataset.")
+else:
+    data = st.session_state['data']
 
     colors = {0: 'lightcoral', 1: 'maroon'}
     pcos = data[data['PCOS (Y/N)'] == 1]
@@ -39,8 +47,8 @@ def show_graphs_window(data):
 
     elif graph_option == "Vitamin D among patients and non-patients":
         data.boxplot(column='Vit D3 (ng/mL)', by='PCOS (Y/N)', whis=[5,95],
-                     showfliers=False, patch_artist=True, boxprops=dict(facecolor="mistyrose"),
-                     medianprops=dict(color="salmon"), whiskerprops=dict(color="black"), ax=ax)
+                     showfliers=False, patch_artist=True, boxprops=dict(facecolor="#FFD6BA"),
+                     medianprops=dict(color="#FFE8CD"), whiskerprops=dict(color="black"), ax=ax)
         ax.set_title('Vitamin D among patients and non-patients', fontsize=14, fontweight='bold')
         ax.set_ylabel('Vit D3 (ng/mL)')
         ax.set_xlabel('PCOS')
@@ -48,8 +56,8 @@ def show_graphs_window(data):
 
     elif graph_option == "FSH/LH ratio among patients and non-patients":
         data.boxplot(column='FSH/LH', by='PCOS (Y/N)', whis=[5,95],
-                     showfliers=False, patch_artist=True, boxprops=dict(facecolor="mistyrose"),
-                     medianprops=dict(color="salmon"), whiskerprops=dict(color="black"), ax=ax)
+                     showfliers=False, patch_artist=True, boxprops=dict(facecolor="#FFD6BA"),
+                     medianprops=dict(color="#FFE8CD"), whiskerprops=dict(color="black"), ax=ax)
         ax.set_title('FSH/LH ratio among patients and non-patients', fontsize=14, fontweight='bold')
         ax.set_ylabel('FSH/LH')
         ax.set_xlabel('PCOS')
@@ -100,8 +108,8 @@ def show_graphs_window(data):
 
     elif graph_option == "Endometrial thickening among patients and non-patients":
         data.boxplot(column='Endometrium (mm)', by='PCOS (Y/N)', whis=[5,95],
-                     showfliers=False, patch_artist=True, boxprops=dict(facecolor="mistyrose"),
-                     medianprops=dict(color="salmon"), whiskerprops=dict(color="black"), ax=ax)
+                     showfliers=False, patch_artist=True, boxprops=dict(facecolor="#FFD6BA"),
+                     medianprops=dict(color="#FFE8CD"), whiskerprops=dict(color="black"), ax=ax)
         ax.set_title('Endometrial thickening among patients and non-patients', fontsize=14, fontweight='bold')
         ax.set_ylabel('Endometrium (mm)')
         ax.set_xlabel('PCOS')
