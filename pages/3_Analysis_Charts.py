@@ -1,6 +1,7 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 
 sns.set_theme(style="whitegrid")
 
@@ -15,8 +16,42 @@ if 'data' not in st.session_state:
 else:
     data = st.session_state['data']
 
+    col_disease = "PCOS (Y/N)"
+    if col_disease not in data.columns:
+        st.error("Dataset must contain a column named 'PCOS (Y/N)'.")
+        st.stop()
+
+    numeric_vars = [
+            c for c in data.columns
+            if pd.api.types.is_numeric_dtype(data[c]) and c != col_disease
+        ]
+
+    st.subheader("Choose a variable to explore")
+    selectedx_var = st.selectbox("Select X variable:", numeric_vars)
+    selectedy_var = st.selectbox("Select Y variable:", numeric_vars)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
     colors = {0: 'lightcoral', 1: 'maroon'}
-    pcos = data[data['PCOS (Y/N)'] == 1]
+
+    sns.scatterplot(
+        data=data,
+        x=selectedx_var,
+        y=selectedy_var,
+        hue="PCOS (Y/N)",
+        palette=colors,
+        edgecolor='black',
+        ax=ax
+    )
+
+    ax.set_title(f'Correlation between {selectedx_var} and {selectedy_var}', fontsize=14, fontweight='bold')
+    ax.set_xlabel(f'{selectedx_var}')
+    ax.set_ylabel(f'{selectedy_var}')
+
+    st.pyplot(fig)
+
+    # Datasets
+    pcos = data[data[col_disease] == 1]
+    no_pcos = data[data[col_disease] == 0]
 
     # Available Graph
     graph_option = st.selectbox(
@@ -93,7 +128,7 @@ else:
         plt.xlim(0, 250)
         plt.ylim(0, 60)
         st.pyplot(plt.gcf())
-        st.stop()  # Evita renderização dupla
+        st.stop() 
 
     elif graph_option == "Number of follicles among patients and non-patients":
         sns.lmplot(data=data, x='Follicle No. (R)', y='Follicle No. (L)',
